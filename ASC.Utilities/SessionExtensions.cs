@@ -1,21 +1,27 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Text;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace ASC.Utilities
 {
     public static class SessionExtensions
     {
-        // Ghi dữ liệu vào Session dưới dạng chuỗi JSON
-        public static void SetSession<T>(this ISession session, string key, T value)
+        public static void SetSession(this ISession session, string key, object value)
         {
-            session.SetString(key, JsonConvert.SerializeObject(value));
+            // Thêm kiểm tra null cho value trước khi serialize nếu cần thiết
+            session.Set(key, Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(value) ?? string.Empty));
         }
 
-        // Đọc dữ liệu từ Session và giải mã JSON về lại Object
+        // Đổi T thành T? để cho phép trả về null nếu không tìm thấy key trong session
         public static T? GetSession<T>(this ISession session, string key)
         {
-            var value = session.GetString(key);
-            return value == null ? default(T) : JsonConvert.DeserializeObject<T>(value);
+            // Khai báo byte[]? để đánh dấu value có thể null
+            if (session.TryGetValue(key, out byte[]? value) && value != null)
+            {
+                return JsonConvert.DeserializeObject<T>(Encoding.ASCII.GetString(value));
+            }
+
+            return default;
         }
     }
 }
