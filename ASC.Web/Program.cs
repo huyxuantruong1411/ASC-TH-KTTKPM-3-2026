@@ -2,6 +2,7 @@
 using ASC.DataAccess.Interfaces;
 using ASC.Web.Configuration;
 using ASC.Web.Data;
+using ASC.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -28,8 +29,11 @@ builder.Services.AddScoped<DbContext, ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddTransient<IEmailSender, AuthMessageSender>();
+builder.Services.AddTransient<ISmsSender, AuthMessageSender>();
+
 // ==========================================
-// 1. Add IdentitySeed và UnitOfWork
+// Add IdentitySeed và UnitOfWork
 // ==========================================
 builder.Services.AddSingleton<IIdentitySeed, IdentitySeed>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -56,7 +60,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // ==========================================
-// 2. Config đưa dữ liệu mẫu từ appsettings.json lên CSDL (Thêm trước app.Run)
+// Config đưa dữ liệu mẫu từ appsettings.json lên CSDL (Thêm trước app.Run)
 // ==========================================
 using (var scope = app.Services.CreateScope())
 {
