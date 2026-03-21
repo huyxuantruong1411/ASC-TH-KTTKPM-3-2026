@@ -1,8 +1,9 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using ASC.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using ASC.Web.Configuration;
+using ASC.Utilities;
 
 namespace ASC.Web.Controllers
 {
@@ -19,7 +20,15 @@ namespace ASC.Web.Controllers
 
         public IActionResult Index()
         {
+            // Lưu cấu hình _settings.Value vào Session với key là "Test"
+            HttpContext.Session.SetSession("Test", _settings.Value);
+
+            // Lấy ra lại từ Session để kiểm tra (chỉ là code test theo bài Lab)
+            var settings = HttpContext.Session.GetSession<ApplicationSettings>("Test");
+
+            // Truyền ApplicationTitle sang View
             ViewBag.Title = _settings.Value.ApplicationTitle;
+
             return View();
         }
 
