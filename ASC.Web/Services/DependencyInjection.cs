@@ -38,16 +38,33 @@ namespace ASC.Web.Services
             }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
             //Add services
-            services.AddTransient<IEmailSender, AuthMessageSender>();
+
+            // Đăng ký cho interface của Identity (Dùng cho Forgot Password, Register,...)
+            services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, AuthMessageSender>();
+
             services.AddTransient<ISmsSender, AuthMessageSender>();
+
             services.AddSingleton<IIdentitySeed, IdentitySeed>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            //....
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true; // Đảm bảo session hoạt động ngay cả khi chưa accept cookie consent
+            });
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddDistributedMemoryCache();
+            services.AddSingleton<INavigationCacheOperations, NavigationCacheOperations>();
+         
 
             //Add RazorPages , MVC
             services.AddRazorPages();
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddControllersWithViews();
+
+            services.AddTransient<ASC.Web.Services.IEmailSender, AuthMessageSender>();
             return services;
         }
     }

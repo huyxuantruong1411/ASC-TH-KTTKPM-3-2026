@@ -5,98 +5,55 @@
     ViewData["Title"] = "Log in";
 }
 
-<h1>@ViewData["Title"]</h1>
-<div class="row">
-    <div class="col s12 m5">
-        <section>
-            <form asp-route-returnurl="@Model.ReturnUrl" method="post">
-                <h4>Use a local account to log in.</h4>
-                <div class="divider"></div> <br />
-                <div asp-validation-summary="All" class="red-text"></div> <div class="row">
-                    <div class="input-field col s12">
-                        <input asp-for="Input.Email" type="email" class="validate">
-                        <label asp-for="Input.Email">Email</label>
-                        <span asp-validation-for="Input.Email" class="helper-text red-text"></span>
-                    </div>
-                </div>
+<div class="container">
+    <div class="row">
+        <div class="col s12 m6 offset-m3">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title center-align">@ViewData["Title"]</span>
+                    <form id="account" method="post">
+                        <div asp-validation-summary="ModelOnly" class="red-text"></div>
 
-                <div class="row">
-                    <div class="input-field col s12">
-                        <input asp-for="Input.Password" type="password" class="validate">
-                        <label asp-for="Input.Password">Password</label>
-                        <span asp-validation-for="Input.Password" class="helper-text red-text"></span>
-                    </div>
-                </div>
+                        <div class="input-field">
+                            <input asp-for="Input.Email" class="validate" autocomplete="username" aria-required="true" />
+                            <label asp-for="Input.Email"></label>
+                            <span asp-validation-for="Input.Email" class="red-text"></span>
+                        </div>
 
-                <div class="row">
-                    <div class="col s12">
-                        <p>
-                            <label>
-                                <input asp-for="Input.RememberMe" type="checkbox" class="filled-in" />
-                                <span>@Html.DisplayNameFor(m => m.Input.RememberMe)</span>
-                            </label>
-                        </p>
-                    </div>
-                </div>
+                        <div class="input-field">
+                            <input asp-for="Input.Password" type="password" class="validate" autocomplete="current-password" aria-required="true" />
+                            <label asp-for="Input.Password"></label>
+                            <span asp-validation-for="Input.Password" class="red-text"></span>
+                        </div>
 
-                <div class="row">
-                    <div class="col s12">
-                        <button class="btn waves-effect waves-light" type="submit">
-                            Log in
-                            <i class="material-icons right">send</i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col s12">
-                        <p>
-                            <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                        </p>
-                        <p>
-                            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                        </p>
-                        <p>
-                            <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
-                        </p>
-                    </div>
-                </div>
-            </form>
-        </section>
-    </div>
-
-    <div class="col s12 m6 offset-m1">
-        <section>
-            <h4>Use another service to log in.</h4>
-            <div class="divider"></div>
-            <br />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
-                                article
-                                about setting up this ASP.NET application to support logging in via external services
-                            </a>.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                        <div>
+                        <div class="row">
                             <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn waves-effect waves-light" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
+                                <label>
+                                    <input asp-for="Input.RememberMe" type="checkbox" />
+                                    <span>@Html.DisplayNameFor(m => m.Input.RememberMe)</span>
+                                </label>
+                            </p>
+                        </div>
+
+                        <div class="row center-align">
+                            <button id="login-submit" type="submit" class="btn waves-effect waves-light">Log in</button>
+                        </div>
+
+                        <div class="row center-align">
+                            <p>
+                                <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+                            </p>
+                            <p>
+                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+                            </p>
+                            <p>
+                                <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
                             </p>
                         </div>
                     </form>
-                }
-            }
-        </section>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

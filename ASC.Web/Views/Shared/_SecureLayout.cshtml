@@ -1,49 +1,57 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http
+@using ASC.Utilities
+@using ASC.Web.Data
+@* Lay thong tin user dang nhap *@
+@inject IHttpContextAccessor UserHttpContext
+@* Lay menu *@
+@inject INavigationCacheOperations navigationCache
+
+@{
     Layout = "_MasterLayout";
+    var currentUser = UserHttpContext?.HttpContext?.User.GetCurrentUserDetails();
 }
+
 <header class="secureLayout">
     <nav class="top-nav blue-grey lighten-1">
         <div class="nav-wrapper row valign-wrapper">
             <div class="col s12 valign-wrapper">
-                <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <a href="#" data-target="nav-mobile" class="sidenav-trigger">
+                    <i class="material-icons">menu</i>
+                </a>
                 <h5><a class="page-title">Automobile Service Center</a></h5>
             </div>
         </div>
     </nav>
+
     <ul id="nav-mobile" class="sidenav sidenav-fixed">
         <li>
             <div class="user-view">
                 <div class="background blue-grey lighten-1"></div>
-                <a href="#!user"><img class="circle" src="~/images/male.png" alt="User"></a>
-                <a href="#!name"><span class="white-text name">John Doe</span></a>
-                <a href="#!email"><span class="white-text email">jdandturk@gmail.com</span></a>
+                <a href="#!user"><img class="circle" src="~/images/male.png"></a>
+                <a href="#!name"><span class="white-text name">@currentUser?.Name</span></a>
+                <a href="#!email"><span class="white-text email">@currentUser?.Email</span></a>
             </div>
         </li>
+
+        @await Component.InvokeAsync("ASC.Web.Navigation.LeftNavigation", await navigationCache.GetNavigationCacheAsync())
+
+        <li><div class="divider"></div></li>
+        <li><a class="subheader">Account</a></li>
         <li>
-            <a class="collapsible-header" href="#!">
-                <i class="material-icons">dashboard</i>Dashboard
+            <a class="waves-effect" href="/Identity/Account/InitiateResetPassword">
+                <i class="material-icons">lock_outline</i>Reset Password
             </a>
         </li>
         <li>
-            <ul class="collapsible collapsible-accordion">
-                <li>
-                    <a class="collapsible-header">User Administration <i class="material-icons">supervisor_account</i></a>
-                    <div class="collapsible-body">
-                        <ul>
-                            <li><a href="#!">Customers<i class="material-icons">account_box</i></a></li>
-                            <li><a href="#!">Provision User<i class="material-icons">person_add</i></a></li>
-                            <li><a href="#!">Deactivate User<i class="material-icons">remove_circle</i></a></li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
+            <a class="waves-effect" href="#" onclick="document.getElementById('logout_form').submit(); return false;">
+                <i class="material-icons">exit_to_app</i>Logout
+            </a>
         </li>
-        <li><a class="collapsible-header" href="#!"><i class="material-icons">perm_data_setting</i>Service Requests</a></li>
-        <li><a class="collapsible-header" href="#!"><i class="material-icons">message</i>Service Notifications</a></li>
-        <li><a class="collapsible-header" href="#!"><i class="material-icons">inbox</i>Promotions</a></li>
-        <li><a class="collapsible-header" href="#!"><i class="material-icons">settings</i>Settings</a></li>
-        <li><a class="collapsible-header" href="#!"><i class="material-icons">exit_to_app</i>Logout</a></li>
     </ul>
+
+    <form class="hide" method="post" id="logout_form" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+        <input type="submit" value="Logout" />
+    </form>
 </header>
 
 <main class="secureLayout">
@@ -85,6 +93,14 @@
         </div>
     </div>
 </footer>
+
 @section Scripts {
     @RenderSection("Scripts", required: false)
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Khởi tạo menu collapsible của Materialize
+            $('.collapsible').collapsible();
+        });
+    </script>
 }
