@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddCongfig(builder.Configuration)
-    .AddMyDependencyGroup();
+    .AddMyDependencyGroup(builder.Configuration);
 
 var app = builder.Build();
 

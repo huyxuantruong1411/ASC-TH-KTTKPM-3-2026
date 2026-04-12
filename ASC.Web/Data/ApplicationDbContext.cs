@@ -28,6 +28,11 @@ namespace ASC.Web.Data
             builder.Entity<ServiceRequest>()
                 .HasKey(c => new { c.PartitionKey, c.RowKey });
 
+            // BỔ SUNG FIX WARNING: Định nghĩa kiểu cột an toàn cho Product.Price
+            builder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(18,2)");
+
             base.OnModelCreating(builder);
         }
     }

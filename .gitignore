@@ -98,3 +98,6 @@ Desktop.ini
 
 *.py
 *.txt
+
+*.json
+!appsettings.json

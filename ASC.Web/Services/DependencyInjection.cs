@@ -12,11 +12,11 @@ namespace ASC.Web.Services
         //Config services
         public static IServiceCollection AddCongfig(this IServiceCollection services, IConfiguration config)
         {
-
             // Add AddDbContext with connectionString to mirage database
             var connectionString = config.GetConnectionString("DefaultConnection") ??
                 throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+
             //Add Options and get data from appsettings.json with "AppSettings"
             services.AddOptions(); // IOption
             services.Configure<ApplicationSettings>(config.GetSection("AppSettings"));
@@ -25,17 +25,25 @@ namespace ASC.Web.Services
         }
 
         //Add service
-        public static IServiceCollection AddMyDependencyGroup(this IServiceCollection services)
+        public static IServiceCollection AddMyDependencyGroup(this IServiceCollection services, IConfiguration config)
         {
             //Add ApplicationDbContext
             services.AddScoped<DbContext, ApplicationDbContext>();
 
-            //Add IdentityUser IdentityUser
+            //Add IdentityUser IdentityRole
             services.AddIdentity<IdentityUser, IdentityRole>((options) =>
             {
                 options.User.RequireUniqueEmail = true;
 
             }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+
+            // CHÚ Ý: Cấu hình Google Auth phải nằm ở đây (SAU AddIdentity)
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    options.ClientId = config["Google:Identity:ClientId"] ?? string.Empty;
+                    options.ClientSecret = config["Google:Identity:ClientSecret"] ?? string.Empty;
+                });
 
             //Add services
 
@@ -57,7 +65,6 @@ namespace ASC.Web.Services
 
             services.AddDistributedMemoryCache();
             services.AddSingleton<INavigationCacheOperations, NavigationCacheOperations>();
-         
 
             //Add RazorPages , MVC
             services.AddRazorPages();
@@ -65,6 +72,7 @@ namespace ASC.Web.Services
             services.AddControllersWithViews();
 
             services.AddTransient<ASC.Web.Services.IEmailSender, AuthMessageSender>();
+
             return services;
         }
     }

@@ -17,14 +17,20 @@ https://youtu.be/GnaHJ71Dx5M
 
 Ngày 24/03/2026
 Video Giải thích Lab 7
-[![Video Giải thích Lab 5](https://img.youtube.com/vi/Oy17lZtBCFM/maxresdefault.jpg)](https://youtu.be/Oy17lZtBCFM)
+[![Video Giải thích Lab 7](https://img.youtube.com/vi/Oy17lZtBCFM/maxresdefault.jpg)](https://youtu.be/Oy17lZtBCFM)
 
 🔗 Link trực tiếp:  
 https://youtu.be/Oy17lZtBCFM
 
 Video Giải thích Lab 8
-[![Video Giải thích Lab 6](https://img.youtube.com/vi/Y6Bbi8Zpc5Y/maxresdefault.jpg)](https://youtu.be/Y6Bbi8Zpc5Y)
+[![Video Giải thích Lab 8](https://img.youtube.com/vi/Y6Bbi8Zpc5Y/maxresdefault.jpg)](https://youtu.be/Y6Bbi8Zpc5Y)
 
 🔗 Link trực tiếp:  
 https://youtu.be/Y6Bbi8Zpc5Y
+
+Video Giải thích Lab 9
+[![Video Giải thích Lab 9](https://img.youtube.com/vi/uLUpIqs8cO4/maxresdefault.jpg)](https://youtu.be/uLUpIqs8cO4)
+
+🔗 Link trực tiếp:  
+https://youtu.be/uLUpIqs8cO4
 

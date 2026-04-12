@@ -1,13 +1,16 @@
 ﻿@page
 @model LoginModel
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
 
 @{
     ViewData["Title"] = "Log in";
 }
 
 <div class="container">
-    <div class="row">
-        <div class="col s12 m6 offset-m3">
+    <div class="row" style="margin-top: 20px;">
+        @* Cột bên trái: Form Đăng nhập truyền thống *@
+        <div class="col s12 m6">
             <div class="card">
                 <div class="card-content">
                     <span class="card-title center-align">@ViewData["Title"]</span>
@@ -36,21 +39,52 @@
                         </div>
 
                         <div class="row center-align">
-                            <button id="login-submit" type="submit" class="btn waves-effect waves-light">Log in</button>
+                            <button id="login-submit" type="submit" class="btn waves-effect waves-light blue">Log in</button>
                         </div>
 
                         <div class="row center-align">
-                            <p>
-                                <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                            </p>
-                            <p>
-                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                            </p>
-                            <p>
-                                <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
-                            </p>
+                            <p><a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a></p>
+                            <p><a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a></p>
+                            <p><a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a></p>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        @* Cột bên phải: Đăng nhập bằng Google/Facebook/etc *@
+        <div class="col s12 m5 offset-m1">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">External Services</span>
+                    <div class="divider" style="margin-bottom: 15px;"></div>
+                    @{
+                        var loginProviders = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+                        if (loginProviders.Count == 0)
+                        {
+                            <div>
+                                <p>There are no external authentication services configured.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                <div>
+                                    <p>
+                                        @foreach (var provider in loginProviders)
+                                        {
+                                            <button type="submit" class="btn waves-effect waves-light btndefault"
+                                                    name="provider" value="@provider.Name"
+                                                    title="Log in using your @provider.DisplayName account"
+                                                    style="width: 100%; margin-bottom: 10px;">
+                                                Sign in with @provider.DisplayName
+                                            </button>
+                                        }
+                                    </p>
+                                </div>
+                            </form>
+                        }
+                    }
                 </div>
             </div>
         </div>

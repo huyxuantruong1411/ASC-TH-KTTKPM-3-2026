@@ -1,0 +1,175 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@using System.Security.Claims;
+@model ASC.Web.Areas.Accounts.Models.CustomerViewModel
+@inject UserManager<IdentityUser> userManager;
+@{
+    Layout = "_SecureLayout";
+}
+<div class="row"></div>
+<div class="row padding-left-20px padding-right-20px">
+    <div class="row z-depth-3">
+        <div class="section white-text padding-left-10px blue-grey lighten-1">
+            <h5>Users</h5>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="col s12 padding-bottom-15px">
+        @if (Model.Customers != null)
+        {
+            <table class="highlight centered" id="tblCustomers">
+                <thead>
+                    <tr>
+                        <th data-field="Email">Email</th>
+                        <th data-field="IsActive">Is Active</th>
+                        <th data-field="IsActiveImg">Is Active</th>
+                        <th data-field="Actions">Edit User</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.Customers)
+                    {
+                        var identity = await userManager.GetClaimsAsync(user);
+                        <tr>
+                            <td>@user.Email</td>
+                            <td>
+                                @(Boolean.Parse(identity.SingleOrDefault(p => p.Type == "IsActive")?.Value ?? "false"))
+                            </td>
+                            <td>
+                                <img src="@(Boolean.Parse(identity.SingleOrDefault(p => p.Type == "IsActive")?.Value ?? "false") ? "/images/green_tick.png" : "/images/red_cross.png")" style="width: 35px; height: auto; object-fit: contain;" />
+                            </td>
+                            <td>
+                                <i class="small material-icons edit cursor-hand">
+                                    mode_edit
+                                </i>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="card blue-grey lighten-1">
+                <div class="card-content white-text">
+                    <span class="card-title">No Customers!!!</span>
+                    <p>No Customers found.</p>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="row"></div>
+
+    @* Details Section *@
+    <div class="row z-depth-3">
+        <div class="col s12 padding-0px">
+            <div class="section white-text padding-left-10px blue-grey lighten-1">
+                <h5>Customer Details</h5>
+            </div>
+            <div class="divider"></div>
+            <form asp-controller="Account" asp-action="Customers" method="post" class="col s12" id="fromUser">
+                <input type="hidden" asp-for="Registration.IsEdit" />
+
+                <div class="input-field col s4">
+                    <!-- Bỏ custom ID, dùng đúng chuẩn ASP.NET -->
+                    <input asp-for="Registration.Email" />
+                    <label asp-for="Registration.Email"></label>
+                </div>
+                <div class="input-field col s4">
+                    <div class="switch">
+                        <label>
+                            Is Active
+                            <input asp-for="Registration.IsActive" class="validate" />
+                            <span class="lever"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="input-field col s4 right-align">
+                    <button class="btn waves-effect waves-light btnSubmit" type="submit" name="action">
+                        Save
+                        <i class="material-icons right">send</i>
+                    </button>
+                    <button class="btn waves-effect waves-light reset red lighten-1" type="button">
+                        Reset
+                    </button>
+                </div>
+                <div class="row col s12 right-align" asp-validation-summary="All" class="text-danger"></div>
+            </form>
+        </div>
+        <div class="row"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        #tblCustomers tbody tr {
+            cursor: pointer;
+        }
+
+        .active-row {
+            background-color: #cfd8dc !important;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            var table = $('#tblCustomers').DataTable({
+                'pageLength': 3,
+                'lengthMenu': [[3, 5, 10, -1], [3, 5, 10, 'All']]
+            });
+            $('#tblCustomers').css("width", "100%");
+            $('select[name="tblCustomers_length"]').formSelect();
+
+            // Ẩn cột IsActive (index 1)
+            var isActiveColumn = table.column(1);
+            isActiveColumn.visible(false);
+
+            // Mặc định vô hiệu hóa nút Save (Vì trang Customer chỉ Edit chứ ko Create)
+            $('.btnSubmit').attr('disabled', 'disabled');
+
+            // Nút Reset / Cancel
+            $(document).on("click", ".reset", function () {
+                $('#fromUser')[0].reset();
+                $('#Registration_Email').removeAttr('readonly');
+                $('#Registration_IsEdit').val('False');
+                $('.btnSubmit').attr('disabled', 'disabled'); // Khóa lại nút Save
+                $('#tblCustomers tbody tr').removeClass('active-row'); // Gỡ highlight
+                M.updateTextFields(); // Reset lại Label UI
+            });
+
+            if ($('#Registration_IsEdit').val() === 'True') {
+                $('#Registration_Email').attr('readonly', 'readonly');
+                $('.btnSubmit').removeAttr('disabled');
+            }
+
+            // Click vào CẢ HÀNG để Edit
+            $('#tblCustomers tbody').on('click', 'tr', function () {
+                var tr = $(this);
+
+                // Xử lý child row (Fix lỗi cửa sổ ẩn danh nhỏ)
+                if (tr.hasClass('child')) {
+                    tr = tr.prev('.parent');
+                }
+
+                var user = table.row(tr).data();
+                if(!user) return;
+
+                // Highlight dòng
+                $('#tblCustomers tbody tr').removeClass('active-row');
+                tr.addClass('active-row');
+
+                $('#Registration_IsEdit').val('True');
+
+                $('#Registration_Email').val($.trim(user[0]));
+                $('#Registration_Email').attr('readonly', 'readonly');
+
+                var isActive = $.trim(user[1]).toLowerCase();
+                $('#Registration_IsActive').prop('checked', isActive === 'true');
+
+                $('.btnSubmit').removeAttr('disabled');
+                M.updateTextFields();
+            });
+        });
+    </script>
+}
