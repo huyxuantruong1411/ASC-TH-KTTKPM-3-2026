@@ -6,6 +6,7 @@ namespace ASC.Web.Areas.Accounts.Models
     {
         public List<IdentityUser>? ServiceEngineers { get; set; } //Lưu trữ danh sách nhân viên
 
-        public ServiceEngineerRegistrationViewModel Registration { get; set; } // Lưu trữ nhân viên thêm mới hoặc cập nhật
+        // Fix CS8618: Khởi tạo giá trị mặc định
+        public ServiceEngineerRegistrationViewModel Registration { get; set; } = new ServiceEngineerRegistrationViewModel(); // Lưu trữ nhân viên thêm mới hoặc cập nhật
     }
 }

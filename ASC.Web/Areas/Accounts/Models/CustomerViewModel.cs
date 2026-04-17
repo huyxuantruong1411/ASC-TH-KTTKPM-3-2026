@@ -6,6 +6,6 @@ namespace ASC.Web.Areas.Accounts.Models
     {
         public List<IdentityUser>? Customers { get; set; }
 
-        public CustomerRegistrationViewModel Registration { get; set; }
+        public CustomerRegistrationViewModel Registration { get; set; } = new CustomerRegistrationViewModel();
     }
 }

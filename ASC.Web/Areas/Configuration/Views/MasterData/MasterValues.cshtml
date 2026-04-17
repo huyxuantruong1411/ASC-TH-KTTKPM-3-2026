@@ -1,0 +1,312 @@
+﻿@model ASC.Web.Areas.Configuration.Models.MasterValuesViewModel
+@{
+    Layout = "_SecureLayout";
+}
+
+<div class="row"></div>
+<div class="row padding-top-20px padding-left-20px padding-right-20px">
+    <div class="row z-depth-3">
+        <div class="section white-text padding-left-10px blue-grey lighten-1">
+            <h5>Master Values</h5>
+        </div>
+        <div class="divider"></div>
+        <div class="col s4 padding-bottom-15px">
+            <select id="ddlMasterKeys" asp-items="@(new SelectList(ViewBag.MasterKeys, "RowKey", "PartitionKey"))">
+                <option>--Select--</option>
+            </select>
+            <label>Partition Key</label>
+        </div>
+        <div class="col s4 offset-s4 padding-bottom-15px right-align">
+            <a class="modal-trigger waves-effect waves-light" href="#modal1">
+                <img src="~/images/excel.png" />
+            </a>
+        </div>
+        <div class="col s12 padding-bottom-15px">
+            @* Display List of Master Values *@
+            <table class="highlight centered" id="tblMasterValues">
+                <thead>
+                    <tr>
+                        <th data-field="RowKey">Row Key</th>
+                        <th data-field="PartitionKey">Partition Key</th>
+                        <th data-field="Name">Name</th>
+                        <th data-field="IsActive">Is Active</th>
+                        <th data-field="Actions">Edit</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="row"></div>
+
+    @* Details Section *@
+    <div class="row z-depth-3">
+        <div class="col s12 padding-0px">
+            <div class="section white-text padding-left-10px blue-grey lighten-1">
+                <h5>Master Value Details</h5>
+            </div>
+            <div class="divider"></div>
+            <form asp-controller="MasterData" asp-action="MasterValues" method="post" class="col s12" id="formMasterValue">
+                <div class="row">
+                    <input type="hidden" asp-for="IsEdit" />
+                    <input type="hidden" asp-for="MasterValueInContext.RowKey" />
+                    <input type="hidden" asp-for="MasterValueInContext.PartitionKey" />
+                    <div class="input-field col s4">
+                        <input asp-for="MasterValueInContext.RowKey" id="Input_MasterKey_RowKey" disabled="disabled" />
+                        <label asp-for="MasterValueInContext.RowKey"></label>
+                    </div>
+                    <div class="input-field col s4">
+                        <select id="Select_MasterValueInContext_PartitionKey"
+                                asp-for="MasterValueInContext.PartitionKey"
+                                asp-items="@(new SelectList(ViewBag.MasterKeys, "RowKey", "PartitionKey"))" required="required">
+                            <option value="">--Select--</option>
+                        </select>
+                        <label>Partition Key</label>
+                    </div>
+                    <div class="input-field col s4">
+                        <input asp-for="MasterValueInContext.Name" class="validate" />
+                        <label asp-for="MasterValueInContext.Name"></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s4">
+                        <div class="switch">
+                            <label>
+                                Is Active
+                                <input asp-for="MasterValueInContext.IsActive" class="validate" />
+                                <span class="lever"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="input-field col s8 right-align">
+                        <button class="btn waves-effect waves-light btnSubmit" type="button"
+                                name="action">
+                            Create
+                            <i class="material-icons right">send</i>
+                        </button>
+                        <button class="btn waves-effect waves-light reset red lighten-1"
+                                type="button" name="action">
+                            Reset
+                        </button>
+                    </div>
+                    <div class="row col s12 right-align" asp-validation-summary="All"></div>
+                </div>
+            </form>
+        </div>
+        <div class="row"></div>
+    </div>
+</div>
+
+<div id="modal1" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <h4>Upload Excel</h4>
+        <p>Upload the Excel file that contains all the master values.</p>
+        <div class="row hide divErrors">
+            <div class="col s12">
+                <div class="card-panel red lighten-1">
+                    <span class="white-text errors"></span>
+                </div>
+            </div>
+        </div>
+        <div class="progress hide">
+            <div class="indeterminate"></div>
+        </div>
+        <form action="UploadExcel" controller="MasterData" method="post">
+            <div class="file-field input-field">
+                <div class="btn">
+                    <span>File</span>
+                    <input type="file" id="files">
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text">
+                </div>
+                <div class="input-field row right">
+                    <button class="btn waves-effect waves-light btnUpload" type="button" name="action">
+                        Upload
+                        <i class="material-icons right">send</i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var token = $('input[type=hidden][name=__RequestVerificationToken]', document).val();
+            $.ajaxSetup({
+                cache: false,
+                headers: { 'RequestVerificationToken': token }
+            });
+
+            // Initialize DataTable
+            var table = $('#tblMasterValues').DataTable({
+                'ajax': {
+                'url': '@Url.Action("MasterValuesByKey", "MasterData")',
+                'type': 'GET',
+                },
+                'pageLength': 3,
+                'lengthMenu': [[3, 5, 10, -1], [3, 5, 10, 'All']],
+                // CẬP NHẬT 1: Chuyển toàn bộ data thành chữ thường ở đầu.
+                // Đồng thời gán cột Actions thành null để tránh lỗi undefined
+                'columns': [
+                    { 'data': 'rowKey' },
+                    { 'data': 'partitionKey' },
+                    { 'data': 'name' },
+                    { 'data': 'isActive' },
+                    { 'data': null, 'defaultContent': '' },
+                ],
+                "aoColumnDefs": [
+                    {
+                        "aTargets": [3],
+                        "mData": "isActive", // CẬP NHẬT 2: Chuyển thành isActive
+                        "mRender": function (data, type, full) {
+                            if (data === true) return '<img src="/images/green_tick.png" />';
+                            else return '<img src="/images/red_cross.png" />';
+                        }
+                    },
+                    {
+                        "aTargets": [4],
+                        // ĐÃ XÓA mData: "Actions" Ở ĐÂY VÌ KHÔNG CÒN CẦN THIẾT
+                        "mRender": function (data, type, full) {
+                            return '<i class="small material-icons edit cursor-hand">mode_edit</i> ';
+                        }
+                    }
+                ]
+            });
+
+            $('#tblMasterValues').css("width", "100%");
+            $('select[name="tblMasterValues_length"]').formSelect();
+            $("select[required]").css({
+                display: "block", position: 'absolute', visibility:'hidden'
+            });
+
+            $('select').formSelect();
+
+            // Handle Reset functionality
+            $(document).on("click", ".reset", function () {
+                $('#formMasterValue')[0].reset();
+                $('.btnSubmit').text('Create');
+                $('#IsEdit').val('False');
+
+                $('#Select_MasterValueInContext_PartitionKey').formSelect('destroy');
+                $('#Select_MasterValueInContext_PartitionKey').removeAttr('disabled');
+                $('#Select_MasterValueInContext_PartitionKey').formSelect();
+
+                $('.validation-summary-valid').find("ul").html('');
+
+                // FIX: Tránh lỗi label đè lên input của Materialize CSS sau khi reset form
+                M.updateTextFields();
+            });
+
+            // On click of Edit icon
+            $(document).on('click', '.edit', function () {
+                var user = $('#tblMasterValues').DataTable().row($(this).parents('tr')).data();
+                $('#IsEdit').val('True');
+
+                // CẬP NHẬT 3: Gọi đúng tên property chữ thường
+                $('#MasterValueInContext_RowKey').val(user["rowKey"]);
+                $('#Input_MasterKey_RowKey').val(user["rowKey"]);
+                $('#MasterValueInContext_PartitionKey').val(user["partitionKey"]);
+
+                $('#Select_MasterValueInContext_PartitionKey').formSelect('destroy');
+                $('#Select_MasterValueInContext_PartitionKey option:contains(' + user['partitionKey'] + ')').prop('selected', true);
+                $('#Select_MasterValueInContext_PartitionKey').attr('disabled', 'disabled');
+                $('#Select_MasterValueInContext_PartitionKey').formSelect();
+
+                $('.select-wrapper').removeClass('valid');
+
+                $('#MasterValueInContext_Name').val(user["name"]);
+                $('#MasterValueInContext_Name').addClass('valid');
+                $('#MasterValueInContext_IsActive').prop('checked', user["isActive"] === true ? true : false);
+                $('.btnSubmit').text('Save');
+                M.updateTextFields();
+            });
+
+            $(document).on('change', '#ddlMasterKeys', function () {
+                table.ajax.url('@Url.Action("MasterValuesByKey", "MasterData")' + '?key=' + $('#ddlMasterKeys option:selected').text());
+                table.ajax.reload();
+            });
+
+            // Save/Create Button Click Event
+            $(document).on('click', '.btnSubmit', function () {
+                var form = $("#formMasterValue");
+                if ($(form).valid()) {
+                    var masterData = new Object();
+                    masterData.Name = $('#MasterValueInContext_Name').val();
+                    masterData.PartitionKey = $('#Select_MasterValueInContext_PartitionKey option:selected').text();
+                    masterData.IsActive = $('#MasterValueInContext_IsActive').is(':checked');
+
+                    // FIX 1: So sánh chuỗi tuyệt đối
+                    if ($('#IsEdit').val() === 'True') {
+                        masterData.RowKey = $('#MasterValueInContext_RowKey').val();
+                    }
+
+                    // Lấy token để gửi
+                    var token = $('input[type=hidden][name=__RequestVerificationToken]', document).val();
+
+                    // POST data
+                    $.post('@Url.Action("MasterValues", "MasterData")',
+                        {
+                            masterValue: masterData,
+                            isEdit: $('#IsEdit').val() === 'True',
+                            __RequestVerificationToken: token // FIX 2: Gửi token ngăn chặn lỗi 400
+                        },
+                        function (data, status, xhr) {
+                            if (data === true) {
+                                // FIX 3: Load lại bảng theo PartitionKey vừa thao tác thay vì filter trống
+                                table.ajax.url('@Url.Action("MasterValuesByKey", "MasterData")' + '?key=' + masterData.PartitionKey);
+                                table.ajax.reload();
+
+                                // Đồng bộ hóa UI của Dropdown filter phía trên cùng
+                                $('#ddlMasterKeys option:contains(' + masterData.PartitionKey + ')').prop('selected', true);
+                                $('#ddlMasterKeys').formSelect();
+
+                                // FIX 4: Đem lệnh reset form VÀO TRONG callback success
+                                $('.reset').click();
+                                $('.select-wrapper').removeClass('valid');
+
+                                M.toast({html: 'Lưu thành công!', classes: 'green'});
+                            } else {
+                                M.toast({html: 'Có lỗi xảy ra (Dữ liệu không hợp lệ)', classes: 'red'});
+                            }
+                        }
+                    ).fail(function() {
+                        M.toast({html: 'Lỗi máy chủ (Server Error)', classes: 'red'});
+                    });
+                }
+            });
+
+            $('.modal').modal();
+
+            $(document).on('click', '.btnUpload', function () {
+                var fileUpload = $("#files").get(0);
+                var files = fileUpload.files;
+                var data = new FormData();
+                $.each(files, function (i) {
+                    data.append(files[i].name, files[i]);
+                });
+                $(".progress").removeClass("hide");
+                $.ajax({
+                    type: "POST",
+                    url: "/Configuration/MasterData/UploadExcel",
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                    success: function (message) {
+                        $(".progress").addClass("hide");
+                        if (message.Success) {
+                            window.location.reload();
+                        }
+                        if (message.Error) {
+                            $(".divErrors").removeClass("hide");
+                            $(".errors").html("");
+                            $(".errors").html(message.Text);
+                        }
+                    },
+                    error: function () { }
+                });
+            });
+        });
+    </script>
+}
