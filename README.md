@@ -34,3 +34,8 @@ Video Giải thích Lab 9
 🔗 Link trực tiếp:  
 https://youtu.be/uLUpIqs8cO4
 
+Video Giải thích Lab 10
+[![Video Giải thích Lab 10](https://img.youtube.com/vi/_Jyit6CHh_Q/maxresdefault.jpg)](https://youtu.be/_Jyit6CHh_Q)
+
+🔗 Link trực tiếp:  
+https://youtu.be/_Jyit6CHh_Q
