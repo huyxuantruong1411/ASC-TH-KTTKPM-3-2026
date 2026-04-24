@@ -122,9 +122,8 @@ namespace ASC.Web.Areas.Configuration.Controllers
 
                 using (ExcelPackage package = new ExcelPackage(memoryStream))
                 {
-                    #pragma warning disable CS0618 // Ẩn cảnh báo phiên bản cũ của EPPlus
-                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                    #pragma warning restore CS0618
+                    ExcelPackage.License.SetNonCommercialPersonal("ASC Project");
+
                     ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
 
                     int rowCount = worksheet.Dimension.Rows;

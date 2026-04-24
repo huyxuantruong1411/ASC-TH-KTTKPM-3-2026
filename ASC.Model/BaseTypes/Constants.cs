@@ -6,7 +6,7 @@
         {
             Admin, Engineer, User
         }
-        public enum Masterkeys
+        public enum MasterKeys
         {
             VehicleName, VehicleType
         }

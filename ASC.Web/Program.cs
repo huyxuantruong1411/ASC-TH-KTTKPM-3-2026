@@ -30,6 +30,17 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+// --- THÊM ĐOẠN NÀY ĐỂ FIX LỖI NGÀY THÁNG ---
+var supportedCultures = new[] { "vi-VN", "en-GB" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture("en-GB") // Dùng en-GB hoặc vi-VN để mặc định lấy chuẩn dd/MM/yyyy
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
+// ------------------------------------------
+
+app.UseRouting(); // Dòng cũ của bạn đã có sẵn
 
 app.UseRouting();
 
@@ -67,6 +78,12 @@ using (var scope = app.Services.CreateScope())
 {
     var navigationCacheOperations = scope.ServiceProvider.GetRequiredService<INavigationCacheOperations>();
     await navigationCacheOperations.CreateNavigationCacheAsync();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var masterCacheOperations = scope.ServiceProvider.GetRequiredService<IMasterDataCacheOperations>();
+    await masterCacheOperations.CreateMasterDataCacheAsync();
 }
 
 app.Run();

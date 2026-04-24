@@ -279,34 +279,46 @@
 
             $('.modal').modal();
 
-            $(document).on('click', '.btnUpload', function () {
-                var fileUpload = $("#files").get(0);
-                var files = fileUpload.files;
-                var data = new FormData();
-                $.each(files, function (i) {
-                    data.append(files[i].name, files[i]);
-                });
-                $(".progress").removeClass("hide");
-                $.ajax({
-                    type: "POST",
-                    url: "/Configuration/MasterData/UploadExcel",
-                    contentType: false,
-                    processData: false,
-                    data: data,
-                    success: function (message) {
-                        $(".progress").addClass("hide");
-                        if (message.Success) {
-                            window.location.reload();
-                        }
-                        if (message.Error) {
-                            $(".divErrors").removeClass("hide");
-                            $(".errors").html("");
-                            $(".errors").html(message.Text);
-                        }
-                    },
-                    error: function () { }
-                });
+                    $(document).on('click', '.btnUpload', function () {
+            var fileUpload = $("#files").get(0);
+            var files = fileUpload.files;
+            var data = new FormData();
+
+            // FIX LỖI: Lấy token và đưa vào FormData để chống lỗi 400 Bad Request
+            var token = $('input[type=hidden][name=__RequestVerificationToken]', document).val();
+            data.append('__RequestVerificationToken', token);
+
+            $.each(files, function (i) {
+                data.append(files[i].name, files[i]);
             });
+
+            $(".progress").removeClass("hide");
+
+            $.ajax({
+                type: "POST",
+                url: "/Configuration/MasterData/UploadExcel",
+                contentType: false,
+                processData: false,
+                data: data,
+                success: function (message) {
+                    $(".progress").addClass("hide");
+                    if (message.Success) {
+                        M.toast({html: 'Upload thành công!', classes: 'green'});
+                        setTimeout(function() { window.location.reload(); }, 1000); // Reload lại sau 1s
+                    }
+                    if (message.Error) {
+                        $(".divErrors").removeClass("hide");
+                        $(".errors").html("");
+                        $(".errors").html(message.Text);
+                    }
+                },
+                error: function () {
+                    // FIX LỖI UX: Tắt thanh progress và báo lỗi nếu có
+                    $(".progress").addClass("hide");
+                    M.toast({html: 'Lỗi máy chủ: Không thể Upload file', classes: 'red'});
+                }
+            });
+        });
         });
     </script>
 }

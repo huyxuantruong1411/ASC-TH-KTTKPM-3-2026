@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ASC.Model.BaseTypes;
+﻿using ASC.Model.BaseTypes;
 using ASC.Models.BaseTypes;
 
 namespace ASC.Model.Models
@@ -18,12 +13,12 @@ namespace ASC.Model.Models
             this.PartitionKey = email;
         }
 
-        public string VehicleName { get; set; } = string.Empty;
-        public string VehicleType { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public string RequestedServices { get; set; } = string.Empty;
+        public string VehicleName { get; set; } = String.Empty;
+        public string VehicleType { get; set; } = String.Empty;
+        public string Status { get; set; } = String.Empty;
+        public string RequestedServices { get; set; } = String.Empty;
         public DateTime? RequestedDate { get; set; }
         public DateTime? CompletedDate { get; set; }
-        public string ServiceEngineer { get; set; } = string.Empty;
+        public string? ServiceEngineer { get; set; }
     }
 }

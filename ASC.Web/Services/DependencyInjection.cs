@@ -2,6 +2,7 @@
 using ASC.Business.Interfaces;
 using ASC.DataAccess;
 using ASC.DataAccess.Interfaces;
+using ASC.Model.Models;
 using ASC.Web.Configuration;
 using ASC.Web.Data;
 using Microsoft.AspNetCore.Identity;
@@ -22,6 +23,12 @@ namespace ASC.Web.Services
             //Add Options and get data from appsettings.json with "AppSettings"
             services.AddOptions(); // IOption
             services.Configure<ApplicationSettings>(config.GetSection("AppSettings"));
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = config.GetSection("CacheSettings:CacheConnectionString").Value;
+                options.InstanceName = config.GetSection("CacheSettings:CacheInstance").Value;
+            });
 
             return services;
         }
@@ -67,6 +74,9 @@ namespace ASC.Web.Services
 
             services.AddDistributedMemoryCache();
             services.AddSingleton<INavigationCacheOperations, NavigationCacheOperations>();
+
+            services.AddScoped<IMasterDataCacheOperations,  MasterDataCacheOperations>();
+            services.AddScoped<IServiceRequestOperations, ServiceRequestOperations>();
 
             //Add RazorPages , MVC
             services.AddRazorPages();
