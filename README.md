@@ -47,7 +47,7 @@ Video Giải thích Lab 11
 https://youtu.be/HJvyLjGIi9Y
 
 Video Giải thích Lab 12
-[![Video Giải thích Lab 12](https://img.youtube.com/vi/xz5lL8XHWVo/maxresdefault.jpg)](https://youtu.be/xz5lL8XHWVo)
+[![Video Giải thích Lab 12](https://img.youtube.com/vi/v2oPhqaD7uw/maxresdefault.jpg)](https://youtu.be/v2oPhqaD7uw)
 
 🔗 Link trực tiếp:
-https://youtu.be/xz5lL8XHWVo
+https://youtu.be/v2oPhqaD7uw
