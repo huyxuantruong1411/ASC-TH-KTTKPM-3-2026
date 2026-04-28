@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Real-time Chat";
+    Layout = "_SecureLayout"; // Sử dụng layout bảo mật có sẵn của bạn
+}
+
+<div class="row padding-top-20px padding-left-20px padding-right-20px">
+    <div class="col s12">
+        <div class="card z-depth-3">
+            <div class="card-content white-text blue-grey lighten-1">
+                <span class="card-title">Hệ thống Chat Nội Bộ</span>
+            </div>
+            <div class="card-content">
+                <div id="chat-box" style="height: 450px; overflow-y: auto; background-color: #eceff1; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+                    <ul id="messagesList" style="margin: 0;"></ul>
+                </div>
+
+                <div class="row" style="margin-bottom: 0;">
+                    <div class="input-field col s10">
+                        <input type="text" id="messageInput" placeholder="Nhập tin nhắn của bạn..." autocomplete="off" />
+                    </div>
+                    <div class="input-field col s2 right-align">
+                        <button id="sendButton" class="btn waves-effect waves-light blue darken-1" style="width: 100%;">
+                            Gửi <i class="material-icons right">send</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    <script src="~/js/chat.js"></script>
+}

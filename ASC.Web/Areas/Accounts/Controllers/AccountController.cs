@@ -159,10 +159,10 @@ namespace ASC.Web.Areas.Accounts.Controllers
                 // Update User
                 // Update claims IsActive
                 var user = await _userManager.FindByEmailAsync(customer.Registration.Email);
-                var identity = await _userManager.GetClaimsAsync(user);
+                var identity = await _userManager.GetClaimsAsync(user!);
                 var isActiveClaim = identity.SingleOrDefault(p => p.Type == "IsActive");
-                var removeClaimResult = await _userManager.RemoveClaimAsync(user, new System.Security.Claims.Claim(isActiveClaim.Type, isActiveClaim.Value));
-                var addClaimResult = await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim(isActiveClaim.Type, customer.Registration.IsActive.ToString()));
+                var removeClaimResult = await _userManager.RemoveClaimAsync(user!, new System.Security.Claims.Claim(isActiveClaim!.Type, isActiveClaim.Value));
+                var addClaimResult = await _userManager.AddClaimAsync(user!, new System.Security.Claims.Claim(isActiveClaim.Type, customer.Registration.IsActive.ToString()));
             }
 
             if (customer.Registration.IsActive)
@@ -181,7 +181,7 @@ namespace ASC.Web.Areas.Accounts.Controllers
         {
             var user = HttpContext.User.GetCurrentUserDetails();
 
-            return View(new ProfileModel() { UserName = user.Name });
+            return View(new ProfileModel() { UserName = user!.Name });
         }
 
         [HttpPost]
@@ -194,8 +194,8 @@ namespace ASC.Web.Areas.Accounts.Controllers
             }
 
             // Update UserName
-            var user = await _userManager.FindByEmailAsync(HttpContext.User.GetCurrentUserDetails().Email);
-            user.UserName = profile.UserName;
+            var user = await _userManager.FindByEmailAsync(HttpContext.User.GetCurrentUserDetails()!.Email);
+            user!.UserName = profile.UserName;
             IdentityResult result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {

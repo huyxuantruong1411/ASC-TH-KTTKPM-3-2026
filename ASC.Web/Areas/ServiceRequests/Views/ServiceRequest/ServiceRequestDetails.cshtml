@@ -1,0 +1,204 @@
+﻿@using ASC.Utilities
+@model ASC.Model.Models.ServiceRequest
+@{
+    ViewData["Title"] = "Chi tiết Yêu cầu & Trao đổi";
+    Layout = "_SecureLayout";
+
+    // ĐÃ FIX LỖI CS0120: Gọi trực tiếp User thay vì HttpContext.User
+    var currentUserEmail = User.GetCurrentUserDetails()?.Email ?? "";
+}
+
+<div class="row padding-top-20px padding-left-20px padding-right-20px">
+
+    <div class="col s12 m5">
+        <div class="card z-depth-3">
+            <div class="card-content white-text blue-grey lighten-1">
+                <span class="card-title">Thông tin Yêu cầu</span>
+            </div>
+            <div class="card-content">
+                <p><b>Mã Yêu Cầu (ID):</b> @Model.RowKey</p>
+                <p><b>Tên Xe:</b> @Model.VehicleName</p>
+                <p><b>Loại Xe:</b> @Model.VehicleType</p>
+                <p><b>Ngày Yêu Cầu:</b> @(Model.RequestedDate.HasValue? Model.RequestedDate.Value.ToString("dd/MM/yyyy") : "N/A")</p>
+                <p><b>Trạng Thái:</b> <span class="new badge blue" data-badge-caption="@Model.Status"></span></p>
+                <p><b>Khách Hàng (Email):</b> @Model.PartitionKey</p>
+                <p><b>Kỹ Sư Phụ Trách:</b> @(string.IsNullOrEmpty(Model.ServiceEngineer) ? "Chưa phân công" : Model.ServiceEngineer)</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col s12 m7">
+        <div class="card z-depth-3">
+            <div class="card-content white-text blue-grey lighten-1">
+                <span class="card-title">Trao đổi & Tin nhắn</span>
+            </div>
+            <div class="card-content">
+                <div class="row" style="margin-bottom: 10px;">
+                    <div class="col s4 center-align">
+                        <div class="chip">
+                            <img src="/images/red_dot.png" data-id="isAd" alt="Admin" /> Admin
+                        </div>
+                    </div>
+                    <div class="col s4 center-align">
+                        <div class="chip">
+                            <img src="/images/red_dot.png" data-id="isSe" alt="Engineer" /> Kỹ Sư
+                        </div>
+                    </div>
+                    <div class="col s4 center-align">
+                        <div class="chip">
+                            <img src="/images/red_dot.png" data-id="isCu" alt="Customer" /> Khách Hàng
+                        </div>
+                    </div>
+                </div>
+
+                <div id="chat-box" style="height: 400px; overflow-y: auto; background-color: #eceff1; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <div id="noMessages" class="center-align grey-text" style="margin-top: 20px;">
+                        <i>Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</i>
+                    </div>
+                    <ul id="messagesList" style="margin: 0; display: flex; flex-direction: column;"></ul>
+                </div>
+
+                <div class="row" style="margin-bottom: 0;">
+                    <div class="input-field col s10">
+                        <input type="text" id="txtMessage" placeholder="Nhập tin nhắn..." autocomplete="off" />
+                    </div>
+                    <div class="input-field col s2 right-align">
+                        <button id="btnSend" class="btn waves-effect waves-light blue darken-1" style="width: 100%; padding: 0;">
+                            Gửi
+                        </button>
+                    </div>
+                </div>
+
+                <input type="hidden" id="hdnServiceRequestId" value="@Model.RowKey" />
+                <input type="hidden" id="hdnCurrentEmail" value="@currentUserEmail" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var serviceRequestId = $('#hdnServiceRequestId').val();
+            var currentUserEmail = $('#hdnCurrentEmail').val();
+
+            // 1. Tải danh sách tin nhắn cũ bằng Ajax khi mới mở trang
+            $.ajax({
+                url: '/ServiceRequests/ServiceRequest/ServiceRequestMessages',
+                type: 'GET',
+                data: { serviceRequestId: serviceRequestId },
+                success: function (data) {
+                    if (data && data.length > 0) {
+                        $('#noMessages').hide();
+                        data.reverse().forEach(function(msg) {
+                            displayMessage(msg);
+                        });
+                        scrollToLatest();
+                    }
+                }
+            });
+
+            // 2. Khởi tạo kết nối SignalR (truyền ServiceRequestId qua query string)
+            var connection = new signalR.HubConnectionBuilder()
+                .withUrl("/serviceMessagesHub?serviceRequestId=" + serviceRequestId)
+                .build();
+
+            // Lắng nghe sự kiện "publishMessage" từ Server đẩy xuống
+            connection.on("publishMessage", function (message) {
+                if (message.partitionKey === serviceRequestId) {
+                    $('#noMessages').hide();
+                    displayMessage(message);
+                    scrollToLatest();
+                }
+            });
+
+            // THÊM MỚI: Lắng nghe sự kiện "online" để cập nhật UI Online/Offline
+            connection.on("online", function (data) {
+                $('img[data-id="isAd"]').attr('src', data.isAd ? '/images/green_dot.png' : '/images/red_dot.png');
+                $('img[data-id="isCu"]').attr('src', data.isCu ? '/images/green_dot.png' : '/images/red_dot.png');
+                $('img[data-id="isSe"]').attr('src', data.isSe ? '/images/green_dot.png' : '/images/red_dot.png');
+            });
+
+            connection.start().catch(function (err) {
+                console.error("SignalR Lỗi: " + err.toString());
+            });
+
+            // 3. Hàm gửi tin nhắn
+            function sendMessage() {
+                var msgText = $('#txtMessage').val();
+                if(msgText.trim() === '') return;
+
+                var payload = {
+                    PartitionKey: serviceRequestId,
+                    Message: msgText
+                };
+
+                $.ajax({
+                    url: '/ServiceRequests/ServiceRequest/CreateServiceRequestMessage',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (res) {
+                        if(res === true) {
+                            $('#txtMessage').val('');
+                        }
+                    }
+                });
+            }
+
+            $('#btnSend').click(function(e) {
+                e.preventDefault();
+                sendMessage();
+            });
+
+            $('#txtMessage').keypress(function (e) {
+                if (e.which == 13) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Hàm tạo giao diện HTML cho bong bóng tin nhắn
+            function displayMessage(message) {
+                var isMe = (message.fromEmail === currentUserEmail);
+
+                var alignSelf = isMe ? "flex-end" : "flex-start";
+                var bgColor = isMe ? "#e3f2fd" : "#ffffff";
+                var textAlign = isMe ? "right" : "left";
+                var dateStr = new Date(message.messageDate).toLocaleString('vi-VN');
+
+                var msgHtml = '<div style="align-self: ' + alignSelf + '; background-color: ' + bgColor + '; ' +
+                              'padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; max-width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">' +
+                              '<div style="font-size: 12px; color: #1976d2; font-weight: bold; margin-bottom: 4px; text-align: ' + textAlign + ';">' +
+                                message.fromDisplayName +
+                              '</div>' +
+                              '<div style="font-size: 14px; word-break: break-word; text-align: ' + textAlign + ';">' +
+                                message.message +
+                              '</div>' +
+                              '<div style="font-size: 11px; color: #9e9e9e; margin-top: 6px; text-align: ' + textAlign + ';">' +
+                                dateStr +
+                              '</div>' +
+                              '</div>';
+
+                $('#messagesList').append(msgHtml);
+            }
+
+            function scrollToLatest() {
+                var chatBox = $('#chat-box')[0];
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            // THÊM MỚI: Bắt sự kiện khi người dùng đóng trang hoặc tải lại (để đánh dấu offline)
+            $(window).on('beforeunload', function () {
+                $.ajax({
+                    url: '/ServiceRequests/ServiceRequest/MarkOfflineUser',
+                    type: 'GET',
+                    headers: { 'ServiceRequestId': serviceRequestId },
+                    async: false // Bắt buộc false để kịp gọi trước khi browser hủy phiên tab
+                });
+            });
+        });
+    </script>
+}

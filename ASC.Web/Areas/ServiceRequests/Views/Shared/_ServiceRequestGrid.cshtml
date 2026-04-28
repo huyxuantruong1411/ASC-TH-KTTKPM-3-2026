@@ -36,7 +36,7 @@
                             <td>@serviceRequest.RowKey</td>
                             <td>@serviceRequest.PartitionKey</td>
                             <td>
-                                @(!serviceRequest.PartitionKey.Contains('-') ?
+                                @(!serviceRequest.PartitionKey!.Contains('-') ?
                                                             serviceRequest.PartitionKey :
                                                             serviceRequest.PartitionKey.Split(new char[] { '-' })[0])
                         </td>
@@ -66,24 +66,25 @@
                                     default:
                                         break;
                                 }
-                        </td>
-                        <td>
-                            @(serviceRequest.RequestedDate == null ? "" : serviceRequest.
-                                                        RequestedDate.Value.ToString("dd/MM/yyyy"))
-                        </td>
-                        <td>@serviceRequest.ServiceEngineer</td>
-                        @if (isAudit)
+                            </td>
+                            <td>
+                                @(serviceRequest.RequestedDate == null ? "" : serviceRequest.RequestedDate.Value.ToString("dd/MM/yyyy"))
+                            </td>
+                            <td>@serviceRequest.ServiceEngineer</td>
+                            @if (isAudit)
                             {
-                                var trimText = String.IsNullOrWhiteSpace(serviceRequest.
-                                RequestedServices) ?
+                                var trimText = String.IsNullOrWhiteSpace(serviceRequest.RequestedServices) ?
                                 string.Empty :
                                 serviceRequest.RequestedServices.Length > 50 ?
-                                string.Format("{0}...", serviceRequest.RequestedServices.
-                                Substring(0, 50)) :
+                                string.Format("{0}...", serviceRequest.RequestedServices.Substring(0, 50)) :
                                 serviceRequest.RequestedServices;
                                 <td title="@serviceRequest.RequestedServices">@trimText</td>
                             }
-                            <td><i class="small material-icons view cursor-hand">pageview</i></td>
+                            <td>
+                                <a asp-area="ServiceRequests" asp-controller="ServiceRequest" asp-action="ServiceRequestDetails" asp-route-id="@serviceRequest.RowKey" class="black-text">
+                                    <i class="small material-icons view cursor-hand">pageview</i>
+                                </a>
+                            </td>
                         </tr>
                     }
                 </tbody>

@@ -8,6 +8,6 @@ namespace ASC.Business.Interfaces
         ServiceRequest UpdateServiceRequest(ServiceRequest request);
         Task<ServiceRequest> UpdateServiceRequestStatusAsync(string rowKey, string partitionKey, string status);
         Task<List<ServiceRequest>> GetServiceRequestsByRequestedDateAndStatus(DateTime? requestedDate,
-            List<string> status = null, string email = "", string serviceEngineerEmail = "");
+            List<string>? status = null, string email = "", string serviceEngineerEmail = "");
     }
 }

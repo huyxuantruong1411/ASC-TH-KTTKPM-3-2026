@@ -5,7 +5,7 @@
         // Thêm ? để cho phép null
         public List<MasterDataValueViewModel>? MasterValues { get; set; }
 
-        public MasterDataValueViewModel MasterValueInContext { get; set; }
+        public MasterDataValueViewModel? MasterValueInContext { get; set; }
         public bool IsEdit { get; set; }
     }
 }

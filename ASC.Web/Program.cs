@@ -6,12 +6,15 @@ using ASC.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using ASC.Web.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddCongfig(builder.Configuration)
     .AddMyDependencyGroup(builder.Configuration);
+
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -60,6 +63,9 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+
+app.MapHub<ServiceMessagesHub>("/serviceMessagesHub");
+app.MapHub<ChatHub>("/chatHub");
 
 using (var scope = app.Services.CreateScope())
 {

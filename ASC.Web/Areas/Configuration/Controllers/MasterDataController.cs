@@ -50,11 +50,11 @@ namespace ASC.Web.Areas.Configuration.Controllers
                 return View(model);
             }
 
-            var masterKey = _mapper.Map<MasterDataKeyViewModel, MasterDataKey>(model.MasterKeyInContext);
+            var masterKey = _mapper.Map<MasterDataKeyViewModel, MasterDataKey>(model.MasterKeyInContext!);
 
             if (model.IsEdit)
             {
-                await _masterData.UpdateMasterKeyAsync(model.MasterKeyInContext.PartitionKey!, masterKey);
+                await _masterData.UpdateMasterKeyAsync(model.MasterKeyInContext!.PartitionKey!, masterKey);
             }
             else
             {

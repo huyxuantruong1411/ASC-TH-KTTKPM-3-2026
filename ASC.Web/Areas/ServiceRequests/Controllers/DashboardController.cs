@@ -44,13 +44,13 @@ namespace ASC.Web.Areas.ServiceRequests.Controllers
                     GetServiceRequestsByRequestedDateAndStatus(
                     DateTime.UtcNow.AddDays(-7),
                     status,
-                    serviceEngineerEmail: HttpContext.User.GetCurrentUserDetails().Email);
+                    serviceEngineerEmail: HttpContext.User.GetCurrentUserDetails()!.Email);
             }
             else
             {
                 serviceRequests = await _serviceRequestOperations.
                     GetServiceRequestsByRequestedDateAndStatus(DateTime.UtcNow.AddYears(-1),
-                    email: HttpContext.User.GetCurrentUserDetails().Email);
+                    email: HttpContext.User.GetCurrentUserDetails()!.Email);
             }
 
             return View(new DashboardViewModel

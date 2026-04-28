@@ -11,6 +11,9 @@ namespace ASC.Web.Data
         public virtual DbSet<ServiceRequest> ServiceRequests { get; set; }  
         public virtual DbSet<Product> Products { get; set; }
 
+        public DbSet<ASC.Model.Models.ServiceRequestMessage> ServiceRequestMessages { get; set; }
+        public DbSet<OnlineUser> OnlineUsers { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

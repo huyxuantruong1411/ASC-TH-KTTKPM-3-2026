@@ -77,6 +77,10 @@ namespace ASC.Web.Services
 
             services.AddScoped<IMasterDataCacheOperations,  MasterDataCacheOperations>();
             services.AddScoped<IServiceRequestOperations, ServiceRequestOperations>();
+            
+            services.AddScoped<IServiceRequestMessageOperations, ServiceRequestMessageOperations>();
+
+            services.AddScoped<IOnlineUsersOperations, OnlineUsersOperations>();
 
             //Add RazorPages , MVC
             services.AddRazorPages();
